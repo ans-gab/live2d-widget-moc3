@@ -3,7 +3,7 @@ import randomSelection from "./utils.js";
 let messageTimer;
 
 function showMessage(text, timeout, priority) {
-    if (!text || (sessionStorage.getItem("waifu-text") && sessionStorage.getItem("waifu-text") > priority)) return;
+    if (!text || (sessionStorage.getItem("waifu-text") && sessionStorage.getItem("waifu-text") >= priority)) return;
     if (messageTimer) {
         clearTimeout(messageTimer);
         messageTimer = null;

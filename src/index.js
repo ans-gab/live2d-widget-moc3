@@ -36,18 +36,18 @@ function loadWidget(config) {
         if (location.pathname === "/") { // 如果是主页
             for (let { hour, text } of time) {
                 const now = new Date(),
-                    after = hour.split("-")[0],
-                    before = hour.split("-")[1] || after;
+                  after = hour.split("-")[0],
+                  before = hour.split("-")[1] || after;
                 if (after <= now.getHours() && now.getHours() <= before) {
                     return text;
                 }
             }
         }
-        const text = `欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
+        const text = `欢迎来到<span>「${document.title.split(" - ")[0]}」</span>`;
         let from;
         if (document.referrer !== "") {
             const referrer = new URL(document.referrer),
-                domain = referrer.hostname.split(".")[1];
+              domain = referrer.hostname.split(".")[1];
             const domains = {
                 "baidu": "百度",
                 "so": "360搜索",
@@ -65,9 +65,9 @@ function loadWidget(config) {
     function registerEventListener(result) {
         // 检测用户活动状态，并在空闲时显示消息
         let userAction = false,
-            userActionTimer,
-            messageArray = result.message.default,
-            lastHoverElement;
+          userActionTimer,
+          messageArray = result.message.default,
+          lastHoverElement;
         window.addEventListener("mousemove", () => userAction = true);
         window.addEventListener("keydown", () => userAction = true);
         setInterval(() => {
@@ -77,11 +77,11 @@ function loadWidget(config) {
                 userActionTimer = null;
             } else if (!userActionTimer) {
                 userActionTimer = setInterval(() => {
-                    showMessage(messageArray, 6000, 9);
+                    showMessage(messageArray, 6000, 7);
                 }, 20000);
             }
         }, 1000);
-        showMessage(welcomeMessage(result.time), 7000, 11);
+        showMessage(welcomeMessage(result.time), 7000, 8);
         window.addEventListener("mouseover", event => {
             for (let { selector, text } of result.mouseover) {
                 if (!event.target.closest(selector)) continue;
@@ -98,14 +98,14 @@ function loadWidget(config) {
                 if (!event.target.closest(selector)) continue;
                 text = randomSelection(text);
                 text = text.replace("{text}", event.target.innerText);
-                showMessage(text, 4000, 8);
+                showMessage(text, 4000, 9);
                 return;
             }
         });
         result.seasons.forEach(({ date, text }) => {
             const now = new Date(),
-                after = date.split("-")[0],
-                before = date.split("-")[1] || after;
+              after = date.split("-")[0],
+              before = date.split("-")[1] || after;
             if ((after.split("/")[0] <= now.getMonth() + 1 && now.getMonth() + 1 <= before.split("/")[0]) && (after.split("/")[1] <= now.getDate() && now.getDate() <= before.split("/")[1])) {
                 text = randomSelection(text);
                 text = text.replace("{year}", now.getFullYear());
@@ -119,25 +119,25 @@ function loadWidget(config) {
             showMessage(result.message.console, 6000, 9);
         };
         window.addEventListener("copy", () => {
-            showMessage(result.message.copy, 6000, 9);
+            showMessage(result.message.copy, 6000, 10);
         });
         window.addEventListener("visibilitychange", () => {
-            if (!document.hidden) showMessage(result.message.visibilitychange, 6000, 9);
+            if (!document.hidden) showMessage(result.message.visibilitychange, 6000, 7);
         });
     }
 
     (function initModel() {
         let modelId = localStorage.getItem("modelId"),
-            modelTexturesId = localStorage.getItem("modelTexturesId");
+          modelTexturesId = localStorage.getItem("modelTexturesId");
         if (modelId === null) {
             // 首次访问加载 指定模型 的 指定材质
-            modelId = 1; // 模型 ID
-            modelTexturesId = 53; // 材质 ID
+            modelId = 6; // 模型 ID
+            modelTexturesId = 1; // 材质 ID
         }
         model.loadModel(modelId, modelTexturesId);
         fetch(config.waifuPath)
-            .then(response => response.json())
-            .then(registerEventListener);
+          .then(response => response.json())
+          .then(registerEventListener);
     })();
 }
 
