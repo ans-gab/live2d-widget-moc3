@@ -80,6 +80,11 @@
 	cursor: grabbing;
 }
 
+/*打印机字体样式*/
+span.typed-cursor {
+	display: none;
+}
+
 #waifu-tool {
 	color: #aaa;
 	opacity: 0;
