@@ -67,7 +67,8 @@ function loadWidget(config) {
         let userAction = false,
           userActionTimer,
           messageArray = result.message.default,
-          lastHoverElement;
+          lastHoverElement,
+          lastHoveredText;
         window.addEventListener("mousemove", () => userAction = true);
         window.addEventListener("keydown", () => userAction = true);
         setInterval(() => {
@@ -77,7 +78,7 @@ function loadWidget(config) {
                 userActionTimer = null;
             } else if (!userActionTimer) {
                 userActionTimer = setInterval(() => {
-                    showMessage(messageArray, 6000, 7);
+                    showMessage(messageArray, 4000, 7);
                 }, 20000);
             }
         }, 1000);
@@ -85,8 +86,10 @@ function loadWidget(config) {
         window.addEventListener("mouseover", event => {
             for (let { selector, text } of result.mouseover) {
                 if (!event.target.closest(selector)) continue;
-                if (lastHoverElement === selector) return;
+                // 判断移动到的文字和类同时相等才执行重新渲染对话
+                if (lastHoverElement === selector && lastHoveredText === event.target.innerText) return;
                 lastHoverElement = selector;
+                lastHoveredText = event.target.innerText;
                 text = randomSelection(text);
                 text = text.replace("{text}", event.target.innerText);
                 showMessage(text, 4000, 8);
