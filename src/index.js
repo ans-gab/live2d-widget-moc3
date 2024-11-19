@@ -19,7 +19,8 @@ function loadWidget(config) {
     }, 0);
 
     (function registerTools() {
-        tools["switch-model"].callback = () => model.loadOtherModel();
+        tools["switch-model"].callback = () => model.loadOtherModel('next');
+        tools["switch-prev-model"].callback = () => model.loadOtherModel('prev');
         tools["switch-texture"].callback = () => model.loadRandModel();
         if (!Array.isArray(config.tools)) {
             config.tools = Object.keys(tools);
