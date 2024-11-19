@@ -39,8 +39,6 @@ class LocalModel {
     }
     try {
       this.modelList = await loadJsonFile(this.modelListPath);
-      console.log(this.modelListPath, this.modelList);
-
       if (!this.modelList.models || !this.modelList.messages) {
         throw "Invalid model list format!";
       }
@@ -72,7 +70,6 @@ class LocalModel {
 
     model.x = (parentWidth - model.width) / 2;
     model.y = parentHeight - model.height;
-
   }
 
   async loadModel(modelId, modelTexturesId, message) {
