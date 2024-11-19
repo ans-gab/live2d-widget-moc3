@@ -34,6 +34,9 @@ if (screen.width >= 768) {
 		// 配置选项的具体用法见 README.md
 		console.log(location.hostname)
 		initWidget({
+			isLocalModel: true, // 使用本地模型
+			modelsPath: live2d_path + "model",
+			modelListPath: live2d_path + "model/model_list.json",
 			//   waifuPath: location.hostname === "law.vuestyle.com" ? "/waifu-tips.json" : live2d_path+ "waifu-tips.json",
 			waifuPath: location.hostname === "localhost" ? "/waifu-tips.json" : live2d_path+ "waifu-tips.json",
 			apiPath: "https://api.su-person.com/live2d_api/",

@@ -1,6 +1,5 @@
 import showMessage from "./message.js";
 import randomSelection from "./utils.js";
-
 import * as PIXI from "pixi.js";
 import { Live2DModel } from "pixi-live2d-display";
 
@@ -57,9 +56,12 @@ class Model {
     }
 
     async loadModel(modelId, modelTexturesId, message) {
+        // 保存当前模型状态
         localStorage.setItem("modelId", modelId);
         localStorage.setItem("modelTexturesId", modelTexturesId);
+        // 显示消息
         showMessage(message, 4000, 7);
+        // 确保模型列表已加载
         if (!this.modelList) await this.loadModelList();
         // 获取当前模型
         const target = randomSelection(this.modelList.models[modelId-1]);
