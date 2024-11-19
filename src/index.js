@@ -41,7 +41,7 @@ function loadWidget(config) {
                   after = hour.split("-")[0],
                   before = hour.split("-")[1] || after;
                 if (after <= now.getHours() && now.getHours() <= before) {
-                    return text;
+                    return randomSelection(text);
                 }
             }
         }
