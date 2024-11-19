@@ -64,7 +64,7 @@ const tools = {
     "info": {
         icon: fa_info_circle,
         callback: () => {
-            open("https://github.com/stevenjoezhang/live2d-widget");
+            open("https://github.com/ans-gab/live2d-widget-moc3");
         }
     },
     "quit": {
