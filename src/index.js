@@ -85,18 +85,21 @@ function loadWidget(config) {
             }
         }, 1000);
         showMessage(welcomeMessage(result.time), 6000, 8);
-        window.addEventListener("mouseover", event => {
-            for (let { selector, text } of result.mouseover) {
-                if (!event.target.closest(selector)) continue;
-                // 判断移动到的文字和类同时相等才执行重新渲染对话
-                if (lastHoverElement === selector && lastHoveredText === event.target.innerText) return;
-                lastHoverElement = selector;
-                lastHoveredText = event.target.innerText;
-                text = randomSelection(text);
-                text = text.replace("{text}", event.target.innerText);
-                showMessage(text, 4000, 8);
-                return;
-            }
+        window.addEventListener("mousemove", event => {
+            clearTimeout(window.hoverTimeout); // 清除之前的定时器
+            window.hoverTimeout = setTimeout(() => { // 设置新的定时器
+                for (let { selector, text } of result.mouseover) {
+                    if (!event.target.closest(selector)) continue;
+                    if (lastHoverElement === selector && lastHoveredText === event.target.innerText) return;
+                    if (!event.target.innerText) return;
+                    lastHoverElement = selector;
+                    lastHoveredText = event.target.innerText;
+                    text = randomSelection(text);
+                    text = text.replace("{text}", event.target.innerText);
+                    showMessage(text, 4000, 8);
+                    return;
+                }
+            }, 300); // 300毫秒的延迟
         });
         window.addEventListener("click", event => {
             for (let { selector, text } of result.click) {
@@ -136,7 +139,7 @@ function loadWidget(config) {
           modelTexturesId = localStorage.getItem("modelTexturesId");
         if (modelId === null) {
             // 首次访问加载 指定模型 的 指定材质
-            modelId = 6; // 模型 ID
+            modelId = 31; // 模型 ID
             modelTexturesId = 1; // 材质 ID
         }
         model.loadModel(modelId, modelTexturesId);
