@@ -90,7 +90,7 @@ function loadWidget(config) {
             window.hoverTimeout = setTimeout(() => { // 设置新的定时器
                 for (let { selector, text } of result.mouseover) {
                     if (!event.target.closest(selector)) continue;
-                    if (lastHoverElement === selector && lastHoveredText === event.target.innerText) return;
+                    if (lastHoverElement === selector && lastHoveredText === event.target.innerText && event.target.id !=='live2d') return;
                     lastHoverElement = selector;
                     lastHoveredText = event.target.innerText;
                     text = randomSelection(text);
