@@ -46,6 +46,7 @@ if (screen.width >= 768) {
 				"hitokoto",
 				"asteroids",
 				"switch-model",
+				"switch-prev-model",
 				"switch-texture",
 				"photo",
 				"info",
