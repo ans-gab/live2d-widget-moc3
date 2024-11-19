@@ -147,11 +147,11 @@ class LocalModel {
     if (direction === 'next') {
       modelId++;
       if (modelId >= this.modelList.models.length) {
-        modelId = 0; // 如果到达末尾则回到开始
+        modelId = 1; // 如果到达末尾则回到开始
       }
     } else if (direction === 'prev') {
       modelId--;
-      if (modelId < 0) {
+      if (modelId <= 0) {
         modelId = this.modelList.models.length - 1; // 如果小于 0 则回到末尾
       }
     }
