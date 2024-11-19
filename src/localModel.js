@@ -81,7 +81,7 @@ class LocalModel {
       await this.loadModelList();
     }
 
-    const target = randomSelection(this.modelList.models[modelId - 1]);
+    const target = randomSelection(this.modelList.models[modelId]);
     const indexPath = `${this.modelsPath}${target}/index.json`;
     const modelsPath = `${this.modelsPath}${target}/${target}.model3.json`;
 
@@ -151,7 +151,7 @@ class LocalModel {
       }
     } else if (direction === 'prev') {
       modelId--;
-      if (modelId <= 0) {
+      if (modelId < 0) {
         modelId = this.modelList.models.length - 1; // 如果小于 0 则回到末尾
       }
     }
