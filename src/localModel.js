@@ -76,37 +76,39 @@ class LocalModel {
   }
 
   async loadModel(modelId, modelTexturesId, message) {
-    // 保存当前模型状态
     localStorage.setItem("modelId", modelId);
     localStorage.setItem("modelTexturesId", modelTexturesId);
-
-    // 显示消息
     showMessage(message, 4000, 10);
 
-    // 确保模型列表已加载
     if (!this.modelList) {
       await this.loadModelList();
     }
 
-    // 获取当前模型
     const target = randomSelection(this.modelList.models[modelId - 1]);
-    // live2d老版本的模型文件
     const indexPath = `${this.modelsPath}${target}/index.json`;
-    // live2d moc3版本的模型文件
     const modelsPath = `${this.modelsPath}${target}/${target}.model3.json`;
-    const indexResponse = await fetch(indexPath);
-    //loadlive2d("live2d", `${this.apiPath}get/?id=${modelId}-${modelTexturesId}`);
-    if (indexResponse.ok) {
-      this.loadModelPixi("live2d", indexPath);
-    } else {
-      const modelsResponse = await fetch(modelsPath);
-      if (modelsResponse.ok) {
-        this.loadModelPixi("live2d", modelsPath);
-      } else {
-        console.error("Both index.json and models.json not found.");
+
+    try {
+      await fetch(indexPath).then(response => {
+        if (response.ok) {
+          return this.loadModelPixi("live2d", indexPath);
+        } else {
+          throw new Error("Index not found");
+        }
+      });
+    } catch (error) {
+      try {
+        const modelsResponse = await fetch(modelsPath);
+        if (modelsResponse.ok) {
+          this.loadModelPixi("live2d", modelsPath);
+        } else {
+          console.error("Both index.json and models.json not found.");
+        }
+      } catch (error) {
+        console.error("Error fetching models.json:", error);
       }
     }
-    console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
+    console.log(`Live2D 模型 ${modelId}-${modelTexturesId}-${target} 加载完成`);
   }
 
   async loadRandModel() {
@@ -137,16 +139,27 @@ class LocalModel {
     }
   }
 
-  async loadOtherModel() {
+  async loadOtherModel(direction) {
     let modelId = parseInt(localStorage.getItem("modelId"));
 
     if (!this.modelList) {
       await this.loadModelList();
     }
 
-    // 切换到下一个模型，如果到达末尾则回到开始
-    const index = ++modelId >= this.modelList.models.length ? 0 : modelId;
-    this.loadModel(index, 0, this.modelList.messages[index]);
+    // 根据传入的 direction 参数增加或减少 modelId
+    if (direction === 'next') {
+      modelId++;
+      if (modelId >= this.modelList.models.length) {
+        modelId = 0; // 如果到达末尾则回到开始
+      }
+    } else if (direction === 'prev') {
+      modelId--;
+      if (modelId < 0) {
+        modelId = this.modelList.models.length - 1; // 如果小于 0 则回到末尾
+      }
+    }
+
+    this.loadModel(modelId, 0, this.modelList.messages[modelId]);
   }
 }
 
