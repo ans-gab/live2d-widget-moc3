@@ -1,10 +1,12 @@
 import fa_comment from "@fortawesome/fontawesome-free/svgs/solid/comment.svg";
 import fa_paper_plane from "@fortawesome/fontawesome-free/svgs/solid/paper-plane.svg";
-import fa_person_walking from "@fortawesome/fontawesome-free/svgs/solid/person-walking.svg";
 import fa_street_view from "@fortawesome/fontawesome-free/svgs/solid/street-view.svg";
 import fa_camera_retro from "@fortawesome/fontawesome-free/svgs/solid/camera-retro.svg";
 import fa_info_circle from "@fortawesome/fontawesome-free/svgs/solid/circle-info.svg";
 import fa_xmark from "@fortawesome/fontawesome-free/svgs/solid/xmark.svg";
+import fa_circle_arrow_down from "@fortawesome/fontawesome-free/svgs/solid/circle-arrow-down.svg";
+import fa_circle_arrow_up from "@fortawesome/fontawesome-free/svgs/solid/circle-arrow-up.svg";
+
 
 import showMessage from "./message.js";
 
@@ -39,17 +41,20 @@ const tools = {
             }
         }
     },
-    "switch-model": {
-        icon: fa_person_walking,
-        callback: () => {}
-    },
     "switch-prev-model": {
-        icon: fa_person_walking,
-        callback: () => {}
+        icon: fa_circle_arrow_up,
+        callback: () => {
+        }
+    },
+    "switch-model": {
+        icon: fa_circle_arrow_down,
+        callback: () => {
+        }
     },
     "switch-texture": {
         icon: fa_street_view,
-        callback: () => {}
+        callback: () => {
+        }
     },
     "photo": {
         icon: fa_camera_retro,
