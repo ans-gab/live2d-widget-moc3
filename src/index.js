@@ -84,7 +84,7 @@ function loadWidget(config) {
                 }, 20000);
             }
         }, 1000);
-        showMessage(welcomeMessage(result.time), 7000, 8);
+        showMessage(welcomeMessage(result.time), 6000, 8);
         window.addEventListener("mouseover", event => {
             for (let { selector, text } of result.mouseover) {
                 if (!event.target.closest(selector)) continue;
