@@ -6,7 +6,7 @@ let messageTimer; // 定义消息计时器
 // 显示消息的函数
 function showMessage(text, timeout, priority) {
     // 如果没有 text，或 sessionStorage 中的优先级小于当前优先级，则返回
-    if (!text || (sessionStorage.getItem("waifu-text") && sessionStorage.getItem("waifu-text") < priority)) return;
+    if (!text || sessionStorage.getItem("waifu-text") < priority) return;
 
     // 清除之前的计时器
     if (messageTimer) {
