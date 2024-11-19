@@ -91,7 +91,6 @@ function loadWidget(config) {
                 for (let { selector, text } of result.mouseover) {
                     if (!event.target.closest(selector)) continue;
                     if (lastHoverElement === selector && lastHoveredText === event.target.innerText) return;
-                    if (!event.target.innerText) return;
                     lastHoverElement = selector;
                     lastHoveredText = event.target.innerText;
                     text = randomSelection(text);
@@ -99,7 +98,7 @@ function loadWidget(config) {
                     showMessage(text, 4000, 8);
                     return;
                 }
-            }, 300); // 300毫秒的延迟
+            }, 100); // 300毫秒的延迟
         });
         window.addEventListener("click", event => {
             for (let { selector, text } of result.click) {
