@@ -1,6 +1,6 @@
 import fa_comment from "@fortawesome/fontawesome-free/svgs/solid/comment.svg";
 import fa_paper_plane from "@fortawesome/fontawesome-free/svgs/solid/paper-plane.svg";
-import fa_user_circle from "@fortawesome/fontawesome-free/svgs/solid/circle-user.svg";
+import fa_person_walking from "@fortawesome/fontawesome-free/svgs/solid/person-walking.svg";
 import fa_street_view from "@fortawesome/fontawesome-free/svgs/solid/street-view.svg";
 import fa_camera_retro from "@fortawesome/fontawesome-free/svgs/solid/camera-retro.svg";
 import fa_info_circle from "@fortawesome/fontawesome-free/svgs/solid/circle-info.svg";
@@ -40,7 +40,11 @@ const tools = {
         }
     },
     "switch-model": {
-        icon: fa_user_circle,
+        icon: fa_person_walking,
+        callback: () => {}
+    },
+    "switch-prev-model": {
+        icon: fa_person_walking,
         callback: () => {}
     },
     "switch-texture": {
