@@ -82,30 +82,117 @@ class LocalModel {
     }
 
     const target = randomSelection(this.modelList.models[modelId]);
-    const indexPath = `${this.modelsPath}${target}/index.json`;
-    const modelsPath = `${this.modelsPath}${target}/${target}.model3.json`;
+    console.log(target, 'target');
+    const live3dArray = [
+      'aidang_2',          'aierdeliqi_4', 'aierdeliqi_5',
+      'aimierbeierding_2', 'banrenma_2',   'beierfasite_2',
+      'biaoqiang',         'biaoqiang_3',  'bisimai_2',
+      'bisimai_2',         'chuixue_3',    'dafeng_2',
+      'deyizhi_3',         'dujiaoshou_4', 'dunkeerke_2',
+      'genaisennao_2',     'heitaizi_2',   'huangjiafangzhou_3',
+      'huonululu_3',       'huonululu_5',  'kelifulan_3',
+      'lafei',             'lafei_4',      'lingbo',
+      'mao_pro',           'mingshi',      'ninghai_4',
+      'pinghai_4',         'qibolin_2',    'shengluyisi_2',
+      'shengluyisi_3',     'sipeibojue_5', 'taiyuan_2',
+      'tianlangxing_3',    'tierbici_2',   'xianghe_2',
+      'xixuegui_4',        'xuefeng',      'yichui_2',
+      'z23',               'z46_2',        'zhala_2'
+    ];
+    const live2dArray = [
+      'Battleship-Girl/209-2',
+      'Battleship-Girl/248_1',
+      'Battleship-Girl/325_1',
+      'bilibili-live/22',
+      'bilibili-live/33',
+      'Gemstone-Story/aite',
+      'Gemstone-Story/lili',
+      'Gemstone-Story/magelite',
+      'Gemstone-Story/safeiya',
+      'Gemstone-Story/west',
+      'Gemstone-Story2/elizabeth_1',
+      'Gemstone-Story2/elizabeth_2',
+      'Gemstone-Story2/elizabeth_3',
+      'Gemstone-Story2/elizabeth_4',
+      'Gemstone-Story2/elizabeth_5',
+      'Gemstone-Story2/elizabeth_6',
+      'Gemstone-Story2/elizabeth_7',
+      'Gemstone-Story2/elizabeth_8',
+      'Gemstone-Story2/elizabeth_9',
+      'Gemstone-Story2/elizabeth_9_1',
+      'Haru/01',
+      'Haru/02',
+      'hijiki',
+      'HonkaiAcademy/bronya',
+      'HonkaiAcademy/BYC',
+      'HonkaiAcademy/delisha',
+      'HonkaiAcademy/himeko',
+      'HonkaiAcademy/houraiji',
+      'HonkaiAcademy/kaguya',
+      'HonkaiAcademy/keluoyi',
+      'HonkaiAcademy/Kiana',
+      'HonkaiAcademy/kika',
+      'HonkaiAcademy/Kiro',
+      'HonkaiAcademy/Lita',
+      'HonkaiAcademy/mie',
+      'HonkaiAcademy/Nina',
+      'HonkaiAcademy/Nindi',
+      'HonkaiAcademy/shin',
+      'HonkaiAcademy/xier',
+      'HonkaiAcademy/xilin2.1',
+      'HonkaiAcademy/yazakura',
+      'HonkaiAcademy/yiselin',
+      'HyperdimensionNeptunia/blanc_classic',
+      'HyperdimensionNeptunia/blanc_normal',
+      'HyperdimensionNeptunia/blanc_swimwear',
+      'HyperdimensionNeptunia/histoire',
+      'HyperdimensionNeptunia/histoirenohover',
+      'HyperdimensionNeptunia/nepgear',
+      'HyperdimensionNeptunia/nepgearswim',
+      'HyperdimensionNeptunia/nepgear_extra',
+      'HyperdimensionNeptunia/nepmaid',
+      'HyperdimensionNeptunia/nepnep',
+      'HyperdimensionNeptunia/nepswim',
+      'HyperdimensionNeptunia/neptune_classic',
+      'HyperdimensionNeptunia/neptune_santa',
+      'HyperdimensionNeptunia/noir',
+      'HyperdimensionNeptunia/noireswim',
+      'HyperdimensionNeptunia/noir_classic',
+      'HyperdimensionNeptunia/noir_santa',
+      'HyperdimensionNeptunia/vert_classic',
+      'HyperdimensionNeptunia/vert_normal',
+      'HyperdimensionNeptunia/vert_swimwear',
+      'KantaiCollection/murakumo',
+      'Koharu',
+      'mark_free_en',
+      'Potion-Maker/Pio',
+      'Potion-Maker/Tia',
+      'ShizukuTalk/shizuku-48',
+      'ShizukuTalk/shizuku-pajama',
+      'tororo'
+    ];
+
+    let loadPath;
+    if (live3dArray.includes(target)) {
+      loadPath = `${this.modelsPath}${target}/${target}.model3.json`;
+    } else if (live2dArray.includes(target)) {
+      loadPath = `${this.modelsPath}${target}/index.json`;
+    } else {
+      console.error(`Target ${target} not found in either live2dArray or live3dArray`);
+      return;
+    }
 
     try {
-      await fetch(indexPath).then(response => {
-        if (response.ok) {
-          return this.loadModelPixi("live2d", indexPath);
-        } else {
-          throw new Error("Index not found");
-        }
-      });
-    } catch (error) {
-      try {
-        const modelsResponse = await fetch(modelsPath);
-        if (modelsResponse.ok) {
-          this.loadModelPixi("live2d", modelsPath);
-        } else {
-          console.error("Both index.json and models.json not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching models.json:", error);
+      const response = await fetch(loadPath);
+      if (response.ok) {
+        await this.loadModelPixi('live2d', loadPath);
+        console.log(`模型 ${modelId}-${modelTexturesId}-${target} 加载完成`);
+      } else {
+        console.error(`加载 ${loadPath} 失败，状态码：${response.status}`);
       }
+    } catch (error) {
+      console.error(`加载 ${loadPath} 时发生错误：`, error);
     }
-    console.log(`Live2D 模型 ${modelId}-${modelTexturesId}-${target} 加载完成`);
   }
 
   async loadRandModel() {
