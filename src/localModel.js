@@ -97,7 +97,7 @@ class LocalModel {
       'shengluyisi_3',     'sipeibojue_5', 'taiyuan_2',
       'tianlangxing_3',    'tierbici_2',   'xianghe_2',
       'xixuegui_4',        'xuefeng',      'yichui_2',
-      'z23',               'z46_2',        'zhala_2'
+      'z23',               'z46_2',        'zhala_2',"mark_free_t04"
     ];
     const live2dArray = [
       'Battleship-Girl/209-2',
@@ -164,7 +164,6 @@ class LocalModel {
       'HyperdimensionNeptunia/vert_swimwear',
       'KantaiCollection/murakumo',
       'Koharu',
-      'mark_free_en',
       'Potion-Maker/Pio',
       'Potion-Maker/Tia',
       'ShizukuTalk/shizuku-48',
