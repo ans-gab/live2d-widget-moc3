@@ -1,59 +1,58 @@
 // 注意：live2d_path 参数应使用绝对路径
-const live2d_path = "https://api.su-person.com/live2d-widget/";
+const live2d_path = "https://api.vuestyle.com/live2d-widget/";
 //const live2d_path = "http://127.0.0.1:5500/";
 
 // 封装异步加载资源的方法
 function loadExternalResource(url, type) {
-	return new Promise((resolve, reject) => {
-		let tag;
+  return new Promise((resolve, reject) => {
+    let tag;
 
-		if (type === "css") {
-			tag = document.createElement("link");
-			tag.rel = "stylesheet";
-			tag.href = url;
-		} else if (type === "js") {
-			tag = document.createElement("script");
-			tag.src = url;
-		}
-		if (tag) {
-			tag.onload = () => resolve(url);
-			tag.onerror = () => reject(url);
-			document.head.appendChild(tag);
-		}
-	});
+    if (type === "css") {
+      tag = document.createElement("link");
+      tag.rel = "stylesheet";
+      tag.href = url;
+    } else if (type === "js") {
+      tag = document.createElement("script");
+      tag.src = url;
+    }
+    if (tag) {
+      tag.onload = () => resolve(url);
+      tag.onerror = () => reject(url);
+      document.head.appendChild(tag);
+    }
+  });
 }
 
 // 加载 waifu.css live2d.min.js waifu-tips.js
 if (screen.width >= 768) {
-	Promise.all([
-		loadExternalResource(live2d_path + "waifu.css", "css"),
-		loadExternalResource(live2d_path + "live2dcubismcore.min.js", "js"),
-		loadExternalResource(live2d_path + "live2d.min.js", "js"),
-		loadExternalResource(live2d_path + "waifu-tips.js", "js"),
-	]).then(() => {
-		// 配置选项的具体用法见 README.md
-		console.log(location.hostname)
-		initWidget({
-			isLocalModel: true, // 使用本地模型
-			modelsPath: live2d_path + "model",
-			modelListPath: live2d_path + "model/model_list.json",
-			//   waifuPath: location.hostname === "law.vuestyle.com" ? "/waifu-tips.json" : live2d_path+ "waifu-tips.json",
-			waifuPath: (location.hostname === "localhost" || location.hostname === "law.vuestyle.com") ? "/waifu-tips.json" : live2d_path+ "waifu-tips.json",
-			apiPath: "https://api.su-person.com/live2d_api/",
-			// cdnPath: "https://cdn.jsdelivr.net/gh/qxdn/live2d_api/",
-			//cdnPath: "http://localhost:56692/",
-			tools: [
-				"hitokoto",
-				"asteroids",
-				"switch-prev-model",
-				"switch-model",
-				"switch-texture",
-				"photo",
-				"info",
-				"quit",
-			],
-		});
-	});
+  Promise.all([
+    loadExternalResource(live2d_path + "waifu.css", "css"),
+    loadExternalResource(live2d_path + "live2dcubismcore.min.js", "js"),
+    loadExternalResource(live2d_path + "live2d.min.js", "js"),
+    loadExternalResource(live2d_path + "waifu-tips.js", "js"),
+  ]).then(() => {
+    // 配置选项的具体用法见 README.md
+    console.log(location.hostname)
+    initWidget({
+      isLocalModel: true, // 使用本地模型
+      modelsPath: live2d_path + "model",
+      modelListPath: live2d_path + "model/model_list.json",
+      //   waifuPath: location.hostname === "law.vuestyle.com" ? "/waifu-tips.json" : live2d_path+ "waifu-tips.json",
+      waifuPath: (location.hostname === "localhost" || location.hostname === "law.vuestyle.com") ? "/waifu-tips.json" : live2d_path + "waifu-tips.json",
+      apiPath: "https://api.vuestyle.com/live2d_api/",
+      // cdnPath: "https://cdn.jsdelivr.net/gh/qxdn/live2d_api/",
+      //cdnPath: "http://localhost:56692/",
+      tools: [
+        "hitokoto",
+        "asteroids",
+        "switch-prev-model",
+        "switch-model",
+        "switch-texture",
+        "ai",
+        "quit",
+      ],
+    });
+  });
 }
 
 console.log(`
