@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat with 小可爱</title>
+</head>
+<body>
+<h2>和ai聊天</h2>
+<input id="input" placeholder="输入消息" style="width: 300px" />
+<button onclick="sendMessage()">发送</button>
+<pre id="output" style="margin-top: 20px; white-space: pre-wrap;"></pre>
+
+<script>
+  async function sendMessage() {
+    const input = document.getElementById('input').value;
+    const output = document.getElementById('output');
+    
+    const res = await fetch('https://ai.vuestyle.com/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: input }]
+      })
+    });
+    
+    const data = await res.json();
+    output.textContent = data.message || data.error;
+  }
+</script>
+</body>
+</html>
