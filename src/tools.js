@@ -65,6 +65,7 @@ function askAI() {
         background: #4a90e2;
         color: white;
         border: none;
+ 
         border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
@@ -110,27 +111,27 @@ function askAI() {
       // 显示正在思考的消息
       showMessage("让我想想...", 2000, 9);
 
-      // 初始化 OpenAI 客户端
-      const openai = new OpenAI({
-        baseURL: 'https://api.deepseek.com',
-        apiKey: 'sk-2e4e5ab548e446f2b6c7588cff4a828e',
-        dangerouslyAllowBrowser: true // 注意：在生产环境中应避免这样做，这里仅为演示用途
-      });
-
-      // 调用 API
-      openai.chat.completions.create({
-        messages: [
-          { role: "system", content: "你是一个漂亮温柔的小可爱，请简短并礼貌的回复我的问题，尽可能提供多的情绪价值。" },
-          { role: "user", content: question }
-        ],
-        model: "deepseek-chat",
-      }).then(completion => {
-        const answer = completion.choices[0].message.content;
-        showMessage(answer, 8000, 9);
-      }).catch(error => {
-        console.error("Error:", error);
-        showMessage("抱歉，我无法回答这个问题。", 4000, 9);
-      });
+      // 向后端发送请求
+      fetch('https://ai.vuestyle.com/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: question }]
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          showMessage(data.message, 8000, 9);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          showMessage("抱歉，我无法回答这个问题。", 4000, 9);
+        });
     } else {
       removeInput();
     }
