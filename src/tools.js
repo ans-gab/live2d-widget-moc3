@@ -19,8 +19,7 @@ function showHitokoto() {
           const text = `${result.hitokoto}<br />来自 <span>「${result.from}」</span>`;
           showMessage(text, 4000, 9);
       });
-}
-function askAI() {
+}function askAI() {
   // 创建输入框容器
   const inputContainer = document.createElement('div');
   inputContainer.id = 'ai-input-container';
@@ -37,6 +36,21 @@ function askAI() {
         gap: 8px;
         backdrop-filter: blur(5px);
         border: 1px solid rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+    `;
+
+  // 创建对话历史显示区域
+  const historyContainer = document.createElement('div');
+  historyContainer.id = 'ai-history-container';
+  historyContainer.style.cssText = `        max-height: 200px;
+        overflow-y: auto;
+        padding: 8px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        background: white;
+        font-size: 12px;
+        margin-bottom: 8px;
+        display: none;
     `;
 
   // 创建输入框
@@ -65,7 +79,6 @@ function askAI() {
         background: #4a90e2;
         color: white;
         border: none;
- 
         border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
@@ -82,15 +95,44 @@ function askAI() {
         font-size: 12px;
     `;
 
+  // 清除对话历史按钮
+  const clearButton = document.createElement('button');
+  clearButton.textContent = '清除历史';
+  clearButton.style.cssText = `        padding: 6px 12px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    `;
+
   // 添加元素到容器
+  buttonContainer.appendChild(clearButton);
   buttonContainer.appendChild(cancelButton);
   buttonContainer.appendChild(submitButton);
 
+  inputContainer.appendChild(historyContainer);
   inputContainer.appendChild(input);
   inputContainer.appendChild(buttonContainer);
 
   // 添加到页面
   document.body.appendChild(inputContainer);
+
+  // 从localStorage获取对话历史
+  let conversationHistory = [];
+  try {
+    const savedHistory = localStorage.getItem('ai-conversation-history');
+    if (savedHistory) {
+      conversationHistory = JSON.parse(savedHistory);
+      if (conversationHistory.length > 0) {
+        historyContainer.style.display = 'block';
+        updateHistoryDisplay(historyContainer, conversationHistory);
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to parse conversation history', e);
+  }
 
   // 聚焦到输入框
   input.focus();
@@ -104,12 +146,54 @@ function askAI() {
 
   cancelButton.addEventListener('click', removeInput);
 
+  clearButton.addEventListener('click', () => {
+    conversationHistory = [];
+    localStorage.removeItem('ai-conversation-history');
+    historyContainer.style.display = 'none';
+    historyContainer.innerHTML = '';
+    showMessage("对话历史已清除", 2000, 9);
+  });
+
   submitButton.addEventListener('click', () => {
     const question = input.value.trim();
     if (question) {
-      removeInput();
       // 显示正在思考的消息
       showMessage("让我想想...", 2000, 9);
+
+      // 获取当前页面URL和maincontent元素的内容
+      let pageContent = '';
+      try {
+        const mainElement = document.getElementById("maincontent");
+        if (!mainElement) {
+          return "";
+        }
+        // 克隆元素以避免修改原始DOM
+        const clonedElement = mainElement.cloneNode(true);
+        // 移除所有svg元素
+        const svgElements = clonedElement.querySelectorAll("svg");
+        svgElements.forEach((svg) => svg.remove());
+        pageContent = clonedElement.innerHTML;
+        // 返回清理后的HTML内容
+      } catch (error) {
+        console.warn("获取主内容时出错:", error);
+        return "";
+      }
+
+      // 构建消息数组，包括系统消息、历史对话和当前问题
+      const messages = [
+        {
+          role: "system",
+          content: `这是本页面的内容：${pageContent}，我希望你的回答最好能根据此页面的内容回答，不管什么问题，我都希望你能和当前页面的内容扯上关系，当然你可以幽默一点啦，我希望你是幽默的、有趣的助手`
+        }
+      ];
+
+      // 添加历史对话
+      conversationHistory.forEach(item => {
+        messages.push({ role: item.role, content: item.content });
+      });
+
+      // 添加当前用户问题
+      messages.push({ role: "user", content: question });
 
       // 向后端发送请求
       fetch('https://ai.vuestyle.com/api/chat', {
@@ -118,7 +202,7 @@ function askAI() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: question }]
+          messages: messages,
         })
       })
         .then(response => response.json())
@@ -126,14 +210,34 @@ function askAI() {
           if (data.error) {
             throw new Error(data.error);
           }
+
+          // 保存对话历史
+          conversationHistory.push({ role: "user", content: question });
+          conversationHistory.push({ role: "assistant", content: data.message });
+
+          // 限制历史记录数量，只保留最近10条消息（5轮对话）
+          if (conversationHistory.length > 10) {
+            conversationHistory = conversationHistory.slice(-10);
+          }
+
+          // 保存到localStorage
+          localStorage.setItem('ai-conversation-history', JSON.stringify(conversationHistory));
+
+          // 更新历史显示
+          if (conversationHistory.length > 0) {
+            historyContainer.style.display = 'block';
+            updateHistoryDisplay(historyContainer, conversationHistory);
+          }
+
           showMessage(data.message, 8000, 9);
         })
         .catch(error => {
           console.error("Error:", error);
           showMessage("抱歉，我无法回答这个问题。", 4000, 9);
         });
-    } else {
-      removeInput();
+
+      // 清空输入框
+      input.value = '';
     }
   });
 
@@ -143,6 +247,22 @@ function askAI() {
       submitButton.click();
     }
   });
+}
+
+// 更新对话历史显示
+function updateHistoryDisplay(container, history) {
+  container.innerHTML = '';
+  history.forEach((item, index) => {
+    const messageElement = document.createElement('div');
+    messageElement.style.cssText = `      padding: 4px;
+      margin: 2px 0;
+      border-radius: 3px;
+      ${item.role === 'user' ? 'background: #e3f2fd;' : 'background: #f5f5f5;'}    `;
+    messageElement.innerHTML = `<strong>${item.role === 'user' ? '你' : 'AI'}:</strong> ${item.content.substring(0, 50)}${item.content.length > 50 ? '...' : ''}`;
+    container.appendChild(messageElement);
+  });
+  // 滚动到底部
+  container.scrollTop = container.scrollHeight;
 }
 
 const tools = {
