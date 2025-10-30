@@ -8,7 +8,7 @@ import fa_circle_arrow_down from "@fortawesome/fontawesome-free/svgs/solid/circl
 import fa_circle_arrow_up from "@fortawesome/fontawesome-free/svgs/solid/circle-arrow-up.svg";
 import fa_paper_plane from "@fortawesome/fontawesome-free/svgs/solid/paper-plane.svg";
 import OpenAI from "openai"
-
+import Typed from 'typed.js';
 import showMessage from "./message.js";
 
 function showHitokoto() {
@@ -19,22 +19,25 @@ function showHitokoto() {
           const text = `${result.hitokoto}<br />来自 <span>「${result.from}」</span>`;
           showMessage(text, 4000, 9);
       });
-}function askAI() {
+}
+
+// ... existing code ...
+function askAI() {
   // 创建输入框容器
   const inputContainer = document.createElement('div');
   inputContainer.id = 'ai-input-container';
   inputContainer.style.cssText = `        position: fixed;
         bottom: 20px;
-        left: 20px;
+        left: 300px;
         z-index: 10000;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.3);
         border-radius: 8px;
         padding: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         display: flex;
         flex-direction: column;
         gap: 8px;
-        backdrop-filter: blur(5px);
+        // backdrop-filter: blur(5px);
         border: 1px solid rgba(0, 0, 0, 0.1);
         max-width: 300px;
     `;
@@ -42,15 +45,16 @@ function showHitokoto() {
   // 创建对话历史显示区域
   const historyContainer = document.createElement('div');
   historyContainer.id = 'ai-history-container';
-  historyContainer.style.cssText = `        max-height: 200px;
+  historyContainer.style.cssText = `        max-height: 150px;
         overflow-y: auto;
         padding: 8px;
-        border: 1px solid #eee;
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 4px;
-        background: white;
+        background: rgba(255, 255, 255, 0.5);
         font-size: 12px;
         margin-bottom: 8px;
         display: none;
+        backdrop-filter: blur(2px);
     `;
 
   // 创建输入框
@@ -63,6 +67,7 @@ function showHitokoto() {
         font-size: 14px;
         outline: none;
         width: 250px;
+        background: rgba(255, 255, 255, 0.8);
     `;
 
   // 创建按钮容器
@@ -76,7 +81,7 @@ function showHitokoto() {
   const submitButton = document.createElement('button');
   submitButton.textContent = '提交';
   submitButton.style.cssText = `        padding: 6px 12px;
-        background: #4a90e2;
+        background: rgba(74, 144, 226, 0.8);
         color: white;
         border: none;
         border-radius: 4px;
@@ -88,7 +93,7 @@ function showHitokoto() {
   const cancelButton = document.createElement('button');
   cancelButton.textContent = '取消';
   cancelButton.style.cssText = `        padding: 6px 12px;
-        background: #f1f1f1;
+        background: rgba(241, 241, 241, 0.8);
         border: none;
         border-radius: 4px;
         cursor: pointer;
@@ -99,7 +104,7 @@ function showHitokoto() {
   const clearButton = document.createElement('button');
   clearButton.textContent = '清除历史';
   clearButton.style.cssText = `        padding: 6px 12px;
-        background: #ff6b6b;
+        background: rgba(255, 107, 107, 0.8);
         color: white;
         border: none;
         border-radius: 4px;
@@ -149,6 +154,7 @@ function showHitokoto() {
   clearButton.addEventListener('click', () => {
     conversationHistory = [];
     localStorage.removeItem('ai-conversation-history');
+    localStorage.removeItem('ai-conversation-page');
     historyContainer.style.display = 'none';
     historyContainer.innerHTML = '';
     showMessage("对话历史已清除", 2000, 9);
@@ -157,6 +163,18 @@ function showHitokoto() {
   submitButton.addEventListener('click', () => {
     const question = input.value.trim();
     if (question) {
+      // 实时显示用户问题到历史记录中
+      conversationHistory.push({ role: "user", content: question });
+      if (conversationHistory.length > 0) {
+        historyContainer.style.display = 'block';
+      }
+      updateHistoryDisplay(historyContainer, conversationHistory);
+
+      // 添加加载中的AI回复占位
+      const loadingIndex = conversationHistory.length;
+      conversationHistory.push({ role: "assistant", content: "" });
+      updateHistoryDisplay(historyContainer, conversationHistory);
+
       // 显示正在思考的消息
       showMessage("让我想想...", 2000, 9);
 
@@ -188,7 +206,7 @@ function showHitokoto() {
       ];
 
       // 添加历史对话
-      conversationHistory.forEach(item => {
+      conversationHistory.slice(0, -1).forEach(item => { // 不包括最后一个空回复
         messages.push({ role: item.role, content: item.content });
       });
 
@@ -211,9 +229,8 @@ function showHitokoto() {
             throw new Error(data.error);
           }
 
-          // 保存对话历史
-          conversationHistory.push({ role: "user", content: question });
-          conversationHistory.push({ role: "assistant", content: data.message });
+          // 用实际回复替换加载中的占位内容
+          conversationHistory[loadingIndex] = { role: "assistant", content: data.message };
 
           // 限制历史记录数量，只保留最近10条消息（5轮对话）
           if (conversationHistory.length > 10) {
@@ -226,13 +243,20 @@ function showHitokoto() {
           // 更新历史显示
           if (conversationHistory.length > 0) {
             historyContainer.style.display = 'block';
-            updateHistoryDisplay(historyContainer, conversationHistory);
           }
+          // 标记这是新消息，需要打字机效果
+          historyContainer.dataset.latestMessageIndex = loadingIndex;
+          updateHistoryDisplay(historyContainer, conversationHistory);
 
           showMessage(data.message, 8000, 9);
         })
         .catch(error => {
           console.error("Error:", error);
+          // 错误时更新历史记录
+          conversationHistory[loadingIndex] = { role: "assistant", content: "抱歉，我无法回答这个问题。" };
+          // 标记这是新消息，需要打字机效果
+          historyContainer.dataset.latestMessageIndex = loadingIndex;
+          updateHistoryDisplay(historyContainer, conversationHistory);
           showMessage("抱歉，我无法回答这个问题。", 4000, 9);
         });
 
@@ -240,6 +264,7 @@ function showHitokoto() {
       input.value = '';
     }
   });
+
 
   // 回车提交
   input.addEventListener('keydown', (e) => {
@@ -249,21 +274,68 @@ function showHitokoto() {
   });
 }
 
+// 打字机效果函数
+function typeWriterEffect(text, containerElement) {
+  // 清空元素内容
+  containerElement.innerHTML = '';
+
+  // 使用Typed.js创建打字机效果
+  const options = {
+    strings: [text],
+    typeSpeed: 50,
+    showCursor: false,
+    fadeOut: true,
+  };
+
+  new Typed(containerElement, options);
+}
+// ... existing code ...
+
+
 // 更新对话历史显示
 function updateHistoryDisplay(container, history) {
   container.innerHTML = '';
+  // 获取最新消息索引
+  const latestMessageIndex = container.dataset.latestMessageIndex ? parseInt(container.dataset.latestMessageIndex) : -1;
+
   history.forEach((item, index) => {
     const messageElement = document.createElement('div');
     messageElement.style.cssText = `      padding: 4px;
       margin: 2px 0;
       border-radius: 3px;
-      ${item.role === 'user' ? 'background: #e3f2fd;' : 'background: #f5f5f5;'}    `;
-    messageElement.innerHTML = `<strong>${item.role === 'user' ? '你' : 'AI'}:</strong> ${item.content.substring(0, 50)}${item.content.length > 50 ? '...' : ''}`;
+      ${item.role === 'user' ? 'background: rgb(227 242 253 / 67%);' : 'background: rgb(245 245 245 / 56%);'}    `;
+
+    if (item.role === 'assistant' && item.content === '') {
+      // 显示加载状态，不应用打字机效果
+      messageElement.innerHTML = `<strong>AI:</strong> <span id="loading-${index}">思考中...</span>`;
+    } else {
+      // 为每个消息创建唯一的ID
+      const messageId = `message-${index}`;
+      messageElement.innerHTML = `<strong>${item.role === 'user' ? '你' : 'AI'}:</strong> <span id="${messageId}">${item.content}</span>`;
+
+      // 只有最新消息且非加载状态才使用打字机效果
+      if (item.role === 'assistant' && item.content !== '' && index === latestMessageIndex) {
+        setTimeout(() => {
+          const messageSpan = document.getElementById(messageId);
+          if (messageSpan) {
+            typeWriterEffect(item.content, messageSpan);
+          }
+        }, 100);
+      }
+    }
     container.appendChild(messageElement);
   });
   // 滚动到底部
   container.scrollTop = container.scrollHeight;
+
+  // 清除latestMessageIndex标记，防止刷新时重复触发
+  if (container.dataset.latestMessageIndex) {
+    delete container.dataset.latestMessageIndex;
+  }
 }
+
+
+
 
 const tools = {
     "hitokoto": {
