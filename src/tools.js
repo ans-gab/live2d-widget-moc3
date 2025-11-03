@@ -7,7 +7,6 @@ import fa_xmark from "@fortawesome/fontawesome-free/svgs/solid/xmark.svg";
 import fa_circle_arrow_down from "@fortawesome/fontawesome-free/svgs/solid/circle-arrow-down.svg";
 import fa_circle_arrow_up from "@fortawesome/fontawesome-free/svgs/solid/circle-arrow-up.svg";
 import fa_paper_plane from "@fortawesome/fontawesome-free/svgs/solid/paper-plane.svg";
-import OpenAI from "openai"
 import Typed from 'typed.js';
 import showMessage from "./message.js";
 
@@ -180,30 +179,37 @@ function askAI() {
 
       // 获取当前页面URL和maincontent元素的内容
       let pageContent = '';
+      let hasPageContent = false;
       try {
         const mainElement = document.getElementById("maincontent");
-        if (!mainElement) {
-          return "";
+        if (mainElement) {
+          // 克隆元素以避免修改原始DOM
+          const clonedElement = mainElement.cloneNode(true);
+          // 移除所有svg元素
+          const svgElements = clonedElement.querySelectorAll("svg");
+          svgElements.forEach((svg) => svg.remove());
+          pageContent = clonedElement.innerHTML;
+          hasPageContent = true;
         }
-        // 克隆元素以避免修改原始DOM
-        const clonedElement = mainElement.cloneNode(true);
-        // 移除所有svg元素
-        const svgElements = clonedElement.querySelectorAll("svg");
-        svgElements.forEach((svg) => svg.remove());
-        pageContent = clonedElement.innerHTML;
-        // 返回清理后的HTML内容
+        // 如果没有maincontent元素，pageContent将保持为空字符串，但不会中断执行
       } catch (error) {
         console.warn("获取主内容时出错:", error);
-        return "";
+        // 即使出现错误也继续执行
       }
 
       // 构建消息数组，包括系统消息、历史对话和当前问题
+      const systemMessage = hasPageContent
+        ? `这是本页面的内容：${pageContent}，我希望你的回答最好能根据此页面的内容回答，不管什么问题，我都希望你能和当前页面的内容扯上关系，当然你可以幽默一点啦，我希望你是幽默的、有趣的助手`
+        : "我希望你能幽默风趣地回答问题，做一个有趣又有用的助手";
+
+      console.log('systemMessage:', systemMessage)
       const messages = [
         {
           role: "system",
-          content: `这是本页面的内容：${pageContent}，我希望你的回答最好能根据此页面的内容回答，不管什么问题，我都希望你能和当前页面的内容扯上关系，当然你可以幽默一点啦，我希望你是幽默的、有趣的助手`
+          content: systemMessage
         }
       ];
+
 
       // 添加历史对话
       conversationHistory.slice(0, -1).forEach(item => { // 不包括最后一个空回复
