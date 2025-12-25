@@ -202,7 +202,6 @@ function askAI() {
         ? `这是本页面的内容：${pageContent}，我希望你的回答最好能根据此页面的内容回答，不管什么问题，我都希望你能和当前页面的内容扯上关系，当然你可以幽默一点啦，我希望你是幽默的、有趣的助手`
         : "我希望你能幽默风趣地回答问题，做一个有趣又有用的助手";
 
-      console.log('systemMessage:', systemMessage)
       const messages = [
         {
           role: "system",
@@ -217,10 +216,8 @@ function askAI() {
       });
 
       // 添加当前用户问题
-      messages.push({ role: "user", content: question });
-
-      // 向后端发送请求
-      fetch('https://ai.vuestyle.com/api/chat', {
+      messages.push({ role: "user", content: question });// 向后端发送请求
+      fetch('https://cooladmin.vuestyle.com/app/law/aichat/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -235,8 +232,14 @@ function askAI() {
             throw new Error(data.error);
           }
 
-          // 用实际回复替换加载中的占位内容
-          conversationHistory[loadingIndex] = { role: "assistant", content: data.message };
+          if (data.code !== 1000){
+            showMessage(data.message, 8000, 9);
+            conversationHistory[loadingIndex] = { role: "assistant", content: data.message };
+          }
+          else{
+            showMessage(data.data, 8000, 9);
+            conversationHistory[loadingIndex] = { role: "assistant", content: data.data };
+          }
 
           // 限制历史记录数量，只保留最近10条消息（5轮对话）
           if (conversationHistory.length > 10) {
@@ -254,7 +257,7 @@ function askAI() {
           historyContainer.dataset.latestMessageIndex = loadingIndex;
           updateHistoryDisplay(historyContainer, conversationHistory);
 
-          showMessage(data.message, 8000, 9);
+
         })
         .catch(error => {
           console.error("Error:", error);
