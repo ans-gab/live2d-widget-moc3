@@ -92,13 +92,29 @@ span.typed-cursor {
 	right: 30px;
 	top: 80px;
 	transition: opacity 1s;
-	display: flex
-;
+	display: flex;
 	flex-flow: column;
 	justify-content: space-around;
 }
+#waifu-align-tool {
+	color: #aaa;
+	opacity: 1;
+	gap: 10px;
+	position: absolute;
+	left: 10px;
+	bottom: 20%;
+	transition: opacity 1s;
+	display: flex;
+	justify-content: center;
+	flex-flow: row;
+	width: 100%;
+	padding: 1rem	;
+}
 
 #waifu:hover #waifu-tool {
+	opacity: 1;
+}
+#waifu:hover #waifu-align-tool {
 	opacity: 1;
 }
 
