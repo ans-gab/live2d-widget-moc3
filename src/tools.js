@@ -298,7 +298,6 @@ function typeWriterEffect(text, containerElement) {
 
   new Typed(containerElement, options);
 }
-// ... existing code ...
 
 
 // 更新对话历史显示

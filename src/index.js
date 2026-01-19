@@ -43,94 +43,114 @@ function loadWidget(config) {
         let currentHorizontalAlignment = 'default'; // 'left', 'center', 'right', 'default'
         let currentVerticalAlignment = 'default';   // 'top', 'middle', 'bottom', 'default'
 
-        // 通用位置设置函数（水平对齐）
-        function setHorizontalAlignment(alignment, message) {
-            const waifu = document.getElementById("waifu");
-            const currentStyle = getComputedStyle(waifu);
+        // 保存原始样式以便重置
+        const originalStyles = {
+            left: waifu.style.left,
+            right: waifu.style.right,
+            top: waifu.style.top,
+            bottom: waifu.style.bottom,
+            transform: waifu.style.transform
+        };
 
-            // 保留垂直方向的transform
-            const currentTransform = currentStyle.transform || "";
-            const translateYMatch = currentTransform.match(/translateY\([^)]+\)/g);
-            const translateY = translateYMatch ? translateYMatch[0] : '';
+        // 确保元素完全渲染后再应用对齐设置
+        function ensureElementRendered(callback) {
+            // 使用 requestAnimationFrame 确保在浏览器重绘后执行
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    callback();
+                }, 100); // 给一点额外时间确保渲染完成
+            });
+        }
 
-            switch(alignment) {
+        // 统一设置对齐状态的函数
+        function setAlignments(horizontal, vertical, message = "") {
+            // 重置为原始状态
+            waifu.style.left = originalStyles.left || "0";
+            waifu.style.right = originalStyles.right || "auto";
+            waifu.style.top = originalStyles.top || "auto";
+            waifu.style.bottom = originalStyles.bottom || "0px";
+            waifu.style.transform = originalStyles.transform || "none";
+
+            // 应用水平对齐
+            switch(horizontal) {
                 case 'left':
                     waifu.style.left = "20px";
                     waifu.style.right = "auto";
-                    // 保留 translateY，组合新的水平 transform
-                    waifu.style.transform = translateY ? `translateX(0) ${translateY}` : "translateX(0)";
                     break;
                 case 'center':
                     waifu.style.left = "50%";
                     waifu.style.right = "auto";
-                    // 保留 translateY，组合新的水平 transform
-                    waifu.style.transform = translateY ? `translateX(-50%) ${translateY}` : "translateX(-50%)";
+                    waifu.style.transform = "translateX(-50%)"; // 只设置水平居中
                     break;
                 case 'right':
                     waifu.style.left = "auto";
                     waifu.style.right = "20px";
-                    // 保留 translateY，组合新的水平 transform
-                    waifu.style.transform = translateY ? `translateX(0) ${translateY}` : "translateX(0)";
                     break;
                 default: // default
                     waifu.style.left = "0";
                     waifu.style.right = "auto";
-                    // 保留 translateY，只移除 translateX 部分
-                    if (translateY) {
-                        waifu.style.transform = translateY;
-                    } else {
-                        waifu.style.transform = 'none';
-                    }
             }
 
-            currentHorizontalAlignment = alignment;
-            localStorage.setItem('waifu-h-position', alignment);
-            if (message) showMessage(message, 2000, 9);
-        }
-
-        // 通用位置设置函数（垂直对齐）
-        function setVerticalAlignment(alignment, message) {
-            const waifu = document.getElementById("waifu");
-            const currentStyle = getComputedStyle(waifu);
-
-            // 保留水平方向的transform
-            const currentTransform = currentStyle.transform || "";
-            const translateXMatch = currentTransform.match(/translateX\([^)]+\)/g);
-            const translateX = translateXMatch ? translateXMatch[0] : '';
-
-            switch(alignment) {
+            // 应用垂直对齐
+            switch(vertical) {
                 case 'top':
                     waifu.style.top = "20px";
                     waifu.style.bottom = "auto";
-                    // 保留 translateX，组合新的垂直 transform
-                    waifu.style.transform = translateX ? `${translateX} translateY(0)` : "translateY(0)";
+                    // 如果已经设置了水平居中，需要保持水平居中效果
+                    if (horizontal === 'center') {
+                        waifu.style.transform = "translateX(-50%) translateY(0)";
+                    } else {
+                        waifu.style.transform = "translateY(0)";
+                    }
                     break;
                 case 'middle':
                     waifu.style.top = "50%";
                     waifu.style.bottom = "auto";
-                    // 保留 translateX，组合新的垂直 transform
-                    waifu.style.transform = translateX ? `${translateX} translateY(-50%)` : "translateY(-50%)";
+                    // 如果已经设置了水平居中，需要保持水平居中效果
+                    if (horizontal === 'center') {
+                        waifu.style.transform = "translateX(-50%) translateY(-50%)"; // 水平垂直居中
+                    } else {
+                        waifu.style.transform = "translateY(-50%)"; // 只设置垂直居中
+                    }
                     break;
                 case 'bottom':
                     waifu.style.top = "auto";
                     waifu.style.bottom = "0px";
-                    // 保留 translateX，组合新的垂直 transform
-                    waifu.style.transform = translateX ? `${translateX} translateY(0)` : "translateY(0)";
+                    // 如果已经设置了水平居中，需要保持水平居中效果
+                    if (horizontal === 'center') {
+                        waifu.style.transform = "translateX(-50%) translateY(0)";
+                    } else {
+                        waifu.style.transform = "translateY(0)";
+                    }
                     break;
                 default: // default
                     waifu.style.top = "auto";
                     waifu.style.bottom = "0px";
-                    // 保留 translateX，只移除 translateY 部分
-                    if (translateX) {
-                        waifu.style.transform = translateX;
+                    // 如果已经设置了水平居中，需要保持水平居中效果
+                    if (horizontal !== 'center') {
+                        waifu.style.transform = "none";
                     } else {
-                        waifu.style.transform = 'none';
+                        waifu.style.transform = "translateX(-50%)";
                     }
             }
 
-            currentVerticalAlignment = alignment;
-            localStorage.setItem('waifu-v-position', alignment);
+            currentHorizontalAlignment = horizontal;
+            currentVerticalAlignment = vertical;
+
+            localStorage.setItem('waifu-h-position', horizontal);
+            localStorage.setItem('waifa-v-position', vertical);
+
             if (message) showMessage(message, 2000, 9);
+        }
+
+        // 通用位置设置函数（水平对齐）
+        function setHorizontalAlignment(alignment, message) {
+            setAlignments(alignment, currentVerticalAlignment, message);
+        }
+
+        // 通用位置设置函数（垂直对齐）
+        function setVerticalAlignment(alignment, message) {
+            setAlignments(currentHorizontalAlignment, alignment, message);
         }
 
         // 恢复默认位置
@@ -308,9 +328,10 @@ function loadWidget(config) {
             waifu.style.opacity = savedOpacity;
         }
 
-        // 根据保存的位置设置应用样式
-        setHorizontalAlignment(savedHorizontalAlignment, "");
-        setVerticalAlignment(savedVerticalAlignment, "");
+        // 确保在DOM完全渲染后再应用对齐设置
+        ensureElementRendered(() => {
+            setAlignments(savedHorizontalAlignment, savedVerticalAlignment, "");
+        });
     })();
 
 
